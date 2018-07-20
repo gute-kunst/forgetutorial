@@ -21,3 +21,15 @@ html, body {
   #forgeViewer {
     width: 100%;
   }
+  .myAwesomeToolbarButton {
+    background-image: url(/img/icon_24.png);
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.handleSelectionToolbarButton {
+  background-image: url(https://github.com/encharm/Font-Awesome-SVG-PNG/raw/master/white/png/24/object-group.png);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
