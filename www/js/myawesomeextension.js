@@ -29,7 +29,7 @@ MyAwesomeExtension.prototype.onToolbarCreated = function () {
 
 MyAwesomeExtension.prototype.createUI = function () {
   var _this = this;
-
+ 
   // prepare to execute the button action
   var myAwesomeToolbarButton = new Autodesk.Viewing.UI.Button('runMyAwesomeCode');
   myAwesomeToolbarButton.onClick = function (e) {
@@ -74,47 +74,31 @@ MyAwesomeExtension.prototype.createUI = function () {
     		pointGeometry.vertices = positions;
 			// console.log(positions);
 			// console.log(velocities);
-			var positions = new Float32Array( pointGeometry.vertices.length * 3 );
-			var colors = new Float32Array( pointGeometry.vertices.length * 3 );
-			var sizes = new Float32Array( pointGeometry.vertices.length );
-			var vertex;
-			var color = new THREE.Color();
 
-			// var lut = new THREE.Lut("rainbow", 255);
-			// lut.setMax(colormap_max);
-			// lut.setMin(colormap_min);
-			
-			for ( var i = 0; i < pointGeometry.vertices.length; i ++ ) {
-				vertex = pointGeometry.vertices[ i ];
-				vertex.toArray( positions, i * 3 );
-				// color.setHSL( 0.6, 1, velocities[10].x / 2.8 );
-				// color = lut.getColor(velocities[i].x);
-				color.setHSL( 0.6, 1, velocities[i].x / 2.8 );
-				color.toArray( colors, i * 3 );
-    	    }
-			var geometry = new THREE.BufferGeometry();
-			geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-			geometry.addAttribute( 'ca', new THREE.BufferAttribute( colors, 3 ) );
-			geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-			for  (var i = 0; i < geometry.attributes.size.array.length; i++){
-				geometry.attributes.size.array[i] = particle_size;  // particle size
-			}
-			var texture = new THREE.TextureLoader().load("https://raw.githubusercontent.com/mrdoob/three.js/feefe06713cd6b44baaf5de8e58234a100275c8d/examples/textures/sprites/ball.png" );
-			// texture.wrapS = THREE.RepeatWrapping;
-			// texture.wrapT = THREE.RepeatWrapping;
-			var material = new THREE.ShaderMaterial( {
-				uniforms: {
-					amplitude: { value: 1 },
-					color:     { value: new THREE.Color( 0xffffff ) },
-					texture:   { value: texture }
-				},
-				vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-				fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-			});
-			var geometry_nobuffer = new THREE.Geometry().fromBufferGeometry( geometry );
+  for(var i = 0; i < pointGeometry.vertices.length; ++i) {
+    pointGeometry.vertices.push(positions[i])
+    // this.shader.attributes.color.value.push(
+    //   new THREE.Vector4(
+    //     Math.random(),
+    //     Math.random(),
+    //     Math.random(),
+    //     1.0)
+    // )
+  }
+  const shaderMaterial = new THREE.ShaderMaterial(this.shader)
 
-			object = new THREE.PointCloud( geometry_nobuffer, material );
-      
+  // creates THREE.PointCloud
+  this.pointCloud = new THREE.PointCloud(
+    this.geometry, shaderMaterial)
+
+  // adds to the viewer scene
+  this.viewer.impl.scene.add(this.pointCloud)
+
+  // triggers refresh
+  this.viewer.impl.invalidate(true)
+}
+
+
       _this.viewer.impl.scene.add(object);
       _this.viewer.impl.invalidate(true);
 	}
