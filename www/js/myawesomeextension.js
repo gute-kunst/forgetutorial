@@ -1,6 +1,7 @@
 // *******************************************
 // My Awesome Extension
 // *******************************************
+
 function MyAwesomeExtension(viewer, options) {
   Autodesk.Viewing.Extension.call(this, viewer, options);
 }
@@ -31,11 +32,9 @@ MyAwesomeExtension.prototype.createUI = function () {
  
   // prepare to execute the button action
   var myAwesomeToolbarButton = new Autodesk.Viewing.UI.Button('runMyAwesomeCode');
-  myAwesomeToolbarButton.onClick = function (e) {
+  myAwesomeToolbarButton.onClick = async function (e) {
 
-alert('I am an extension');
-
-var camera
+// var camera
 		var object
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
@@ -46,22 +45,21 @@ var camera
 		var filename = 'propeller/propeller_400.csv'   //  github data storage
 		// var filename = 'fluid.csv'					   //  amazon S3 (don't use for testing) 
 
-		THREE.Cache.enabled = true;
-        var loader = new THREE.FileLoader();
-		loader.load('https://raw.githubusercontent.com/jobi2122/datastorage/master/' + filename, function (data) {
-		// loader.load('https://s3.eu-central-1.amazonaws.com/dive.webprototype/' + filename, function (data) {
+		// THREE.Cache.enabled = true;
+		console.log('before loading')
+				var data;
 
-			camera = new THREE.PerspectiveCamera( 60, WIDTH / HEIGHT, 0.01, 1000);
-			// camera.position.set(-0.2,0,0);  // sets camera position to (x,y,z)
-			// camera.position.set(0.3082069898459656, 0.24554753263083912, 0.11561752355142028) // gearbox
-			camera.position.set(1,1,1)
-			camera.lookAt(0,0,0);
-			camera.up.set(0,0,1);
-
-			scene = new THREE.Scene();
-
+				try {
+					const response = await axios.get('https://raw.githubusercontent.com/jobi2122/datastorage/master/propeller/propeller_reduced.csv');
+					console.log(response);
+					data = response.data;
+				} catch (error) {
+					console.error(error);
+				}
+			// console.log(data);
+	
 			pointGeometry = new THREE.Geometry();
-		    var positions = [];
+		  var positions = [];
 			var velocities = [];
 			var attributes;
 			var particles = data.split(/\n/g);
@@ -105,26 +103,62 @@ var camera
 			for  (var i = 0; i < geometry.attributes.size.array.length; i++){
 				geometry.attributes.size.array[i] = particle_size;  // particle size
 			}
-			var texture = new THREE.TextureLoader().load( "https://raw.githubusercontent.com/mrdoob/three.js/feefe06713cd6b44baaf5de8e58234a100275c8d/examples/textures/sprites/ball.png" );
-			texture.wrapS = THREE.RepeatWrapping;
-			texture.wrapT = THREE.RepeatWrapping;
-			var material = new THREE.ShaderMaterial( {
-				uniforms: {
-					amplitude: { value: 1 },
-					color:     { value: new THREE.Color( 0xffffff ) },
-					texture:   { value: texture }
+
+			let material;
+			var loader = new THREE.TextureLoader();
+
+
+			const loadTexture = () => Promise.resolve(loader.load(
+				// resource URL
+				'https://raw.githubusercontent.com/mrdoob/three.js/feefe06713cd6b44baaf5de8e58234a100275c8d/examples/textures/sprites/ball.png',
+			
+				// onLoad callback
+				function ( texture ) {
+					// in this example we create the material when the texture is loaded
+					console.log("==============texture", texture)
+					texture.wrapS = THREE.RepeatWrapping;
+					texture.wrapT = THREE.RepeatWrapping;
+					material = new THREE.ShaderMaterial( {
+						uniforms: {
+							amplitude: { value: 1 },
+							color:     { value: new THREE.Color( 0xffffff ) },
+							texture:   { value: texture }
+						},
+						vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+						fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+					});
 				},
-				vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-				fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-			});
-			object = new THREE.Points( geometry, material );
+			
+				// onProgress callback currently not supported
+				undefined,
+			
+				// onError callback
+				function ( err ) {
+					console.error( 'An error happened.' );
+				}
+			))
+
+			await loadTexture()
+			// var promise1 = new Promise((resolve, reject) => {
+			// 	resolve()
+			// })
+
+			console.log("========geomtry, material", geometry, material)
+			object = new THREE.PointCloud( geometry, material );
 			_this.viewer.impl.scene.add(object);
-			_this.viewer.impl.invalidate(true)
-		},
-		function ( xhr ) {console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
-function ( err ) {console.error( 'An error happened' );}
-)
-};
+			_this.viewer.impl.invalidate(true);
+
+
+			var geo = new THREE.PlaneBufferGeometry(20,20,20);
+			var mat = new THREE.MeshBasicMaterial({ color: 0xbfbfbf, side: THREE.DoubleSide,transparent: true, opacity: 0.3, depthWrite: false });
+			var plane = new THREE.Mesh(geo, mat);
+			// scene.add(plane);
+			console.log("============plane", plane)
+			_this.viewer.impl.scene.add(plane);
+			_this.viewer.impl.invalidate(true);
+
+			}
+
   // myAwesomeToolbarButton CSS class should be defined on your .css file
   // you may include icons, below is a sample class:
   myAwesomeToolbarButton.addClass('myAwesomeToolbarButton');
