@@ -35,85 +35,104 @@ MyAwesomeExtension.prototype.createUI = function () {
   myAwesomeToolbarButton.onClick = function (e) {
 
 
-		console.log(_this.viewer);
-		
-		var particle_size = 0.03; // 0.01 for github Dambreak | 0.005 for gearbox | 0.1 for fluid | propeller = 0.01
-		var colormap_min = -1;  // min for Lookup Table [m/s]
-		var colormap_max = 1;   // max for Lookup Table [m/s]
-		// var filename = 'gearbox/gearbox_460.csv'       //  github datastorage
-		var filename = 'propeller/propeller_400.csv'   //  github data storage
-		// var filename = 'fluid.csv'					   //  amazon S3 (don't use for testing) 
-		var data;
-		var rawFile = new XMLHttpRequest();
-		rawFile.open("GET", 'https://raw.githubusercontent.com/jobi2122/datastorage/master/propeller/propeller_reduced.csv', true);
-		rawFile.onreadystatechange = function () {
-			if(rawFile.readyState === 4) {
-				if(rawFile.status === 200 || rawFile.status == 0) {
-					data = rawFile.responseText;
-					alert(data);
-					console.log('data')
-					console.log(data)
-			pointGeometry = new THREE.Geometry();
-		  var positions = [];
-			var velocities = [];
-			var attributes;
-			var particles = data.split(/\n/g);
-			for ( var i = 0; i < particles.length; i++) {
-				attributes = particles[i].split(",");
-				velocities.push(new THREE.Vector3(
-					parseFloat(attributes[0]), 
-					parseFloat(attributes[1]), 
-					parseFloat(attributes[2]))
-				);
-            	positions.push(new THREE.Vector3( 
-            		parseFloat(attributes[3]), 
-            		parseFloat(attributes[4]),
-            		parseFloat(attributes[5]))
-				);
-			};
-    		pointGeometry.vertices = positions;
-			// console.log(positions);
-			// console.log(velocities);
+		var geo = new THREE.PlaneBufferGeometry(20,20,20);
+		var mat = new THREE.MeshBasicMaterial({ color: 0xbfbfbf, side: THREE.DoubleSide,transparent: true, opacity: 0.3, depthWrite: false });
+		var plane = new THREE.Mesh(geo, mat);
+		plane.rotateX( - Math.PI / 2);
+		// scene.add(plane);
 
-  for(var i = 0; i < pointGeometry.vertices.length; ++i) {
-    pointGeometry.vertices.push(positions[i])
-    // this.shader.attributes.color.value.push(
-    //   new THREE.Vector4(
-    //     Math.random(),
-    //     Math.random(),
-    //     Math.random(),
-    //     1.0)
-    // )
+    _this.viewer.impl.scene.add(plane);
+    _this.viewer.impl.invalidate(true);
   }
-  const shaderMaterial = new THREE.ShaderMaterial(this.shader)
-
-  // creates THREE.PointCloud
-  this.pointCloud = new THREE.PointCloud(
-    this.geometry, shaderMaterial)
-
-  // adds to the viewer scene
-  this.viewer.impl.scene.add(this.pointCloud)
-
-  // triggers refresh
-  this.viewer.impl.invalidate(true)
-}
 
 
-      _this.viewer.impl.scene.add(object);
-      _this.viewer.impl.invalidate(true);
-	}
-}
-}
-rawFile.send(null);
 
-    //add two spheres to scene
-    // _this.viewer.impl.scene.add(plane);
-    // // _this.viewer.impl.scene.add(sphere_minpt);
+// 		console.log(_this.viewer);
+		
+// 		var particle_size = 0.03; // 0.01 for github Dambreak | 0.005 for gearbox | 0.1 for fluid | propeller = 0.01
+// 		var colormap_min = -1;  // min for Lookup Table [m/s]
+// 		var colormap_max = 1;   // max for Lookup Table [m/s]
+// 		// var filename = 'gearbox/gearbox_460.csv'       //  github datastorage
+// 		var filename = 'propeller/propeller_400.csv'   //  github data storage
+// 		// var filename = 'fluid.csv'					   //  amazon S3 (don't use for testing) 
+// 		var data;
+// 		var rawFile = new XMLHttpRequest();
+// 		rawFile.open("GET", 'https://raw.githubusercontent.com/jobi2122/datastorage/master/propeller/propeller_reduced.csv', true);
+// 		rawFile.onreadystatechange = function () {
+// 			if(rawFile.readyState === 4) {
+// 				if(rawFile.status === 200 || rawFile.status == 0) {
+// 					data = rawFile.responseText;
+// 					alert(data);
+// 					console.log('data')
+// 					console.log(data)
+// 			pointGeometry = new THREE.Geometry();
+// 		  var positions = [];
+// 			var velocities = [];
+// 			var attributes;
+// 			var particles = data.split(/\n/g);
+// 			for ( var i = 0; i < particles.length; i++) {
+// 				attributes = particles[i].split(",");
+// 				velocities.push(new THREE.Vector3(
+// 					parseFloat(attributes[0]), 
+// 					parseFloat(attributes[1]), 
+// 					parseFloat(attributes[2]))
+// 				);
+//             	positions.push(new THREE.Vector3( 
+//             		parseFloat(attributes[3]), 
+//             		parseFloat(attributes[4]),
+//             		parseFloat(attributes[5]))
+// 				);
+// 			};
+//     		pointGeometry.vertices = positions;
+// 			// console.log(positions);
+// 			// console.log(velocities);
 
-    // _this.viewer.impl.invalidate(true);
+//   for(var i = 0; i < pointGeometry.vertices.length; ++i) {
+//     pointGeometry.vertices.push(positions[i])
+//     // this.shader.attributes.color.value.push(
+//     //   new THREE.Vector4(
+//     //     Math.random(),
+//     //     Math.random(),	
+//     //     Math.random(),
+//     //     1.0)
+//     // )
+//   }
+//   const shaderMaterial = new THREE.ShaderMaterial(this.shader)
+// 	const shaderMaterial = new THREE.ShaderMaterial( {
+// 		uniforms: {
+// 			amplitude: { value: 1 },
+// 			color:     { value: new THREE.Color( 0xffffff ) },
+// 		},
+// 		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+// 		fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+// 	});
+//   // creates THREE.PointCloud
+//   this.pointCloud = new THREE.PointCloud(
+//     this.geometry, shaderMaterial)
 
-    alert('I am an extension');
-  };
+//   // adds to the viewer scene
+//   this.viewer.impl.scene.add(this.pointCloud)
+
+//   // triggers refresh
+//   this.viewer.impl.invalidate(true)
+// }
+
+
+//       _this.viewer.impl.scene.add(object);
+//       _this.viewer.impl.invalidate(true);
+// 	}
+// }
+// }
+// rawFile.send(null);
+
+//     //add two spheres to scene
+//     // _this.viewer.impl.scene.add(plane);
+//     // // _this.viewer.impl.scene.add(sphere_minpt);
+
+//     // _this.viewer.impl.invalidate(true);
+
+//     alert('I am an extension');
+//   };
   // myAwesomeToolbarButton CSS class should be defined on your .css file
   // you may include icons, below is a sample class:
   myAwesomeToolbarButton.addClass('myAwesomeToolbarButton');
