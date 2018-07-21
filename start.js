@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('./server/server');
+var THREE = require('./node_modules/three-full/builds/Three.cjs.js')
 // var app = require('express')();
 
 // start server
