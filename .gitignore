@@ -1,0 +1,8 @@
+#auto-save files
+*~
+
+#MacOS files
+.DS_Store
+
+#directories
+node_modules/
