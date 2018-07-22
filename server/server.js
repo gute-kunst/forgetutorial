@@ -2,7 +2,7 @@
 
 var express = require('express');
 var app = express();
-
+require('dotenv').config()
 // prepare server routing
 app.use('/', express.static(__dirname + '/../www')); // redirect static calls
 app.set('port', process.env.PORT || 3000); // main port

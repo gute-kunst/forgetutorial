@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('./server/server');
+require('dotenv').config()
 // var app = require('express')();
 
 // start server
